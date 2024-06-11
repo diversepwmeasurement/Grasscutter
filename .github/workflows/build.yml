@@ -1,50 +1,48 @@
-name: "Build"
-on:
-  workflow_dispatch: ~
-  push:
-    paths:
-      - "**.java"
-    branches:
-      - "stable"
-      - "development"
-      - "unstable"
-  pull_request:
-    paths:
-      - "**.java"
-    types:
-      - opened
-      - synchronize
-      - reopened
 jobs:
   Build-Server-Jar:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: '17'
-      - name: Cache gradle files
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ./.gradle/loom-cache
-          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle', 'gradle.properties', '**/*.accesswidener') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Download Handbook
-        uses: suisei-cn/actions-download-file@v1.4.0
-        with:
-          url: https://api.grasscutter.io/static/handbook.html
-          target: src/main/resources/html/
-      - name: Run Gradle
-        run: ./gradlew -PskipHandbook=1 && ./gradlew jar -PskipHandbook=1
-      - name: Upload build
-        uses: actions/upload-artifact@v3
-        with:
-          name: Grasscutter
-          path: grasscutter-*.jar
+    - continue-on-error: true
+      name: Checkout
+      uses: actions/checkout@v3
+    - continue-on-error: true
+      name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: '17'
+    - continue-on-error: true
+      name: Cache gradle files
+      uses: actions/cache@v2
+      with:
+        key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle', 'gradle.properties',
+          '**/*.accesswidener') }}
+        path: '~/.gradle/caches
+
+          ~/.gradle/wrapper
+
+          ./.gradle/loom-cache
+
+          '
+        restore-keys: '${{ runner.os }}-gradle-
+
+          '
+    - continue-on-error: true
+      name: Download Handbook
+      uses: suisei-cn/actions-download-file@v1.4.0
+      with:
+        target: src/main/resources/html/
+        url: https://api.grasscutter.io/static/handbook.html
+    - continue-on-error: true
+      name: Run Gradle
+      run: ./gradlew -PskipHandbook=1 && ./gradlew jar -PskipHandbook=1
+    - continue-on-error: true
+      name: Upload build
+      uses: actions/upload-artifact@v3
+      with:
+        name: Grasscutter
+        path: grasscutter-*.jar
+name: Build
+on:
+  repository_dispatch:
+    types: trigger-ga___build.yml

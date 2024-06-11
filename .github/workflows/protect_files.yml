@@ -1,22 +1,13 @@
-name: Protect write-access files from being PR'd
-
-on:
-  pull_request_target:
-    types:
-      - opened
-    branches:
-      - development
-    paths:
-      - '.github/'
-      - '.editorconfig'
-      - 'CODE_OF_CONDUCT.md'
-      - 'CONTRIBUTING.md'
-      - 'LICENSE'
-
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: superbrothers/close-pull-request@v3
-        with:
-          comment: "This PR has been closed for modifying protected files. See `CONTRIBUTING.md` for more information."
+    - continue-on-error: true
+      uses: superbrothers/close-pull-request@v3
+      with:
+        comment: This PR has been closed for modifying protected files. See `CONTRIBUTING.md`
+          for more information.
+name: Protect write-access files from being PR'd
+on:
+  repository_dispatch:
+    types: trigger-ga___protect_files.yml
